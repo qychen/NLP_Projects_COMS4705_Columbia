@@ -1,0 +1,211 @@
+Report for Homework3
+
+UNI: qc2200   NAME: Qianyuan Chen
+
+
+1. Report Feature Extracting Methods:
+
+EXPLANATION BEFORE REPORT:
+From Part A I find that SVM outperforms KNN, so in Part B I will use SVM as classifier.
+Since some of the features can be implemented alone while others cannot: for those can be implemented alone, I will compare their performance with result in Part A and calculate improvement(A) for this feature; for those cannot, I will combine them with another feature (for example Part B 1.(a) and calculated the relative improvement(B.a) compared with “surrounding words” alone).
+
+a)
+surrounding words:
+
+Statistics:
+apply alone:
+————————————————————————————————————————————————————————————————————————————————————
+Language    |    precision    |    recall    |    attempted    |    improvement(A)
+English          0.654             0.654          100.00 %          6.86%          
+Spanish          0.810             0.810          100.00 %          3.18%      
+Catalan          0.828             0.828          100.00 %          0.36%        
+————————————————————————————————————————————————————————————————————————————————————
+
+Explanation:
+By applying this feature alone we can get quite good performance compared with Part A, and the improvements are for all three languages. Though for Catalan the improvement in not as well as English, it seems this feature suits for all language and performs well.
+
+The surrounding window size I finally use is 2, but I have tried size from 1 to 10, and size=2 stands out as highest case.
+
+
+part-of-speech tags:
+
+Statistics:
+apply alone:
+————————————————————————————————————————————————————————————————————————————————————
+Language    |    precision    |    recall    |    attempted    |    improvement(A)
+English          0.574             0.574          100.00 %          negative           
+Spanish          0.770             0.770          100.00 %          negative      
+Catalan          0.788             0.788          100.00 %          negative  
+————————————————————————————————————————————————————————————————————————————————————
+
+apply with “relevance score”
+————————————————————————————————————————————————————————————————————————————————————
+Language    |    precision    |    recall    |    attempted    |    improvement(B.c)
+English          0.625             0.625          100.00 %          0.97%          
+Spanish          0.775             0.775          100.00 %          0.26%      
+Catalan          0.809             0.809          100.00 %          1.25%       
+————————————————————————————————————————————————————————————————————————————————————
+
+Explanation:
+Applying POS feature alone is not as good as surrounding words, but if adding POS as additional feature on other combinations will have improvement, as when I combine it with “relevance score”, it will bring a little improvement.
+
+Though extracting POS feature takes relative a long time, but finally I add this feature to my classifier, since when combining more feature together, POS can always give some improvement. The size of POS window I use is 1, which just taking POS tag of w-1, w0 and w1 into consideration.
+
+
+
+b)
+remove punctuation:
+
+Statistics:
+apply with “surrounding words”
+————————————————————————————————————————————————————————————————————————————————————
+Language    |    precision    |    recall    |    attempted    |    improvement(B.a)
+English          0.656             0.656          100.00 %          0.31%          
+Spanish          0.817             0.817          100.00 %          0.86%      
+Catalan          0.837             0.837          100.00 %          1.09%        
+————————————————————————————————————————————————————————————————————————————————————
+
+Explanation:
+By applying alone with “surrounding words” feature, this operation can increase the accuracy of all three languages. Also the statistics for English and Catalan is coming from deleting just punctuations in the left_context while for Spanish is deleting both left and right punctuations. This is because I have compared their performance in four cases (delete left, delete right, delete both, delete neither), and use the highest improvement case. I will explain more on Part C interesting observation. 
+
+
+remove stop words:
+
+Statistics:
+apply with “surrounding words”
+————————————————————————————————————————————————————————————————————————————————————
+Language    |    precision    |    recall    |    attempted    |    improvement(B.a)
+English          0.616             0.616          100.00 %          negative          
+Spanish          0.793             0.793          100.00 %          negative      
+Catalan          0.822             0.822          100.00 %          negative        
+————————————————————————————————————————————————————————————————————————————————————
+
+Explanation:
+None of the language get improvement from removing stop words. Since stop words can contain some syntax or semantic meanings related to the word to be disambiguated, removing them may cause some information to loss. And thus get the negative result. I will not do this operation in my final implementation.
+
+
+do stemming:
+
+Statistics:
+apply with “surrounding words”
+————————————————————————————————————————————————————————————————————————————————————
+Language    |    precision    |    recall    |    attempted    |    improvement(B.a)
+English          0.650             0.650          100.00 %          negative         
+Spanish          0.813             0.813          100.00 %          0.37%      
+Catalan          0.829             0.828          100.00 %          0.12%        
+————————————————————————————————————————————————————————————————————————————————————
+
+Explanation:
+SnowballStemmer is used in my implementation, and since I cannot find stemmer for Catalan, so I use SnowballStemmer for Spanish to stem the Catalan. The stemming has little improvement on Spanish and Catalan, but does not works for English. Also I have test that ignoring stop words when stemming is better than not ignoring them.
+
+
+c)
+relevance score feature:
+
+Statistics:
+apply alone:
+————————————————————————————————————————————————————————————————————————————————————
+Language    |    precision    |    recall    |    attempted    |    improvement(A)
+English          0.619             0.619          100.00 %          1.14%          
+Spanish          0.773             0.773          100.00 %          negative       
+Catalan          0.799             0.799          100.00 %          negative         
+————————————————————————————————————————————————————————————————————————————————————
+
+Explanation:
+The parameters I use for this feature is (base_count:2, top_count:9, window:10). In my implementation, smoothing is taking into consideration that, a word c must appear more than base_count times (Nc>base_count) to be considered as a candidate for top words. For each sense, totally top top_count of words in candidate list are chosen as represents for this sense and are added to final feature set. The size of window is 10 for this feature.
+
+Applying this alone is not enough to get improvement, but combining “surrounding words” or “POS tag” will give some improvement.
+
+
+d)
+synonyms, hyponyms, hypernyms:
+
+Statistics:
+apply hypernyms with “surrounding words”:
+————————————————————————————————————————————————————————————————————————————————————
+Language    |    precision    |    recall    |    attempted    |    improvement(B.a)
+English          0.661             0.661          100.00 %          1.07%          
+Spanish          0.814             0.814          100.00 %          0.49%      
+Catalan          0.836             0.836          100.00 %          0.97%        
+————————————————————————————————————————————————————————————————————————————————————
+
+Explanation:
+I implement these feature by obtaining the set of synonyms/hyponyms/hypernyms of the words near head, and the size of this feature is 1, which is the best one from 1 to 5 I have tried.
+
+There are many combination of these three feature and I have tried all of them. None of the combination applying alone is good enough, and adding hypernyms alone or adding synonyms and hyponyms to “surrounding words” feature will improve the result, and hypernyms perform better. So I add hypernyms of w-1 and w1 to my final features set.
+
+
+e)
+feature selection:
+
+Statistics:
+apply with “surrounding words” (window_size = 2):
+————————————————————————————————————————————————————————————————————————————————————
+Language    |    precision    |    recall    |    attempted    |    improvement(A)
+English          0.637             0.637          100.00 %          negative          
+Spanish          0.799             0.799          100.00 %          negative      
+Catalan          0.813             0.813          100.00 %          negative       
+————————————————————————————————————————————————————————————————————————————————————
+
+apply with “Part A bag of words” (window_size=15):
+————————————————————————————————————————————————————————————————————————————————————
+Language    |    precision    |    recall    |    attempted    |    improvement(A)
+English          0.624             0.624          100.00 %          1.96%          
+Spanish          0.807             0.807          100.00 %          2.80%      
+Catalan          0.833             0.833          100.00 %          0.97%        
+————————————————————————————————————————————————————————————————————————————————————
+
+Explanation:
+I implemented Chi-square feature selection method using sklearn.feature_selection. At start I find applying feature selection to all my previous features set will decrease the performance. After some reading I find out that this is because when the feature space is small, there is no need to select and doing the selection will decrease the performance, i.e. nearly all of the feature in the small set are important. Then I increase the size of feature set, the selecting operation start to work. 
+
+Also I do feature selection on the “bag of words” feature used in Part A, and after the size is larger than 13, the selection will improve the result. The selection factor I tried is 0.85-0.95, 0.95 for example means the size of selected set is 0.95*size_before.
+
+
+2. New features I add in my implementation:
+
+“bi-gram”: Similar to the “surrounding word” feature, which can be seen as uni-gram model of collocational words of head. So I try to expand uni-gram to bi-gram and tri-gram to see if this can have improvement. The result shows that tri-gram is not a good feature, but bi-gram can improve the feature set. After testing I choose to use bi-gram (size=2) for English, uni-gram (size=2) for Spanish, and both uni-gram (size=2) and bi-gram (size=2) for Catalan.
+
+
+3. Comparison of different classifiers;
+
+From the Part A I find that, using “bag of words” as feature, SVM has better performance than KNN in all three language. The baseline/reference of precision for these two classifiers can also reflect this. In Part B I also try to use different feature set to test the performance of SVM and KNN, which shows that SVM outperforms KNN in all cases.
+
+Also I have tried the Naive Bayes in Part B, and SVM outperforms it in nearly all cases. Note that mine results are all from their default parameters setting. So finally I choose SVM as the classifier.
+
+
+4. Conclusion & final feature set in mine implementation:
+
+Testing each feature and trying all of combination to find the best one really takes LOOOOOTS of time. From my understanding, some of the features have large feature set space, and others is much smaller, and I find that choosing one or two feature with large set space as main feature, and other small one as additional feature, performs better than adjusting all features to be nearly the same set space. Also I add some parameters to the implementation of feature extraction, so in each combination of features I also need to adjust the parameters. And finally the following is the combination of features for three languages:
+
+English: 
+bag of words[-10,10] + POS[-1,1] + Bi-gram[-2,2] (remove left punctuations & do stemming) + relevant score[-2,2] + hypernyms[-1,1]
+
+Spanish: 
+bag of words[-10,10] + POS[-1,1] + Uni-gram[-2,2] (remove both punctuations & do stemming) + relevant score[-2,2] + hypernyms[-1,1] + feature selection(0.87)
+
+Catalan: 
+bag of words[-10,10] + POS[-1,1] + Uni-gram[-2,2] + Bi-gram[-2,2] (remove left punctuations & do stemming) + relevant score[-2,2] + hypernyms[-1,1]
+
+The numbers after the feature is the window of words taking in to account of it. The precision on the dev set is (0.689, 0.838, 0.864) respectively. I use different feature set for different language is because some of the feature is not working well with some language, like Bi-gram feature performs worse than Uni-gram for Spanish. 
+
+
+5. Interesting observation:
+
+In both Part A and B I did a lot of test about punctuation, and different ways of processing punctuation will give slightly different result. In part A, keeping the punctuation for English is actually having better performance(for dev set). And in Part B, I test four cases of dealing with punctuation and the statistics is as follows:
+
+————————————————————————————————————————————————————————————————————————————————————
+Language   |   Neither   |   delete left   |   delete right   |   both
+English        0.654         0.656             0.646              0.654          
+Spanish        0.810         0.811             0.815              0.817   
+Catalan        0.828         0.837             0.826              0.830      
+————————————————————————————————————————————————————————————————————————————————————
+
+So for English and Catalan, keeping their right punctuation is actually better than deleting them. This kindly make sense that, punctuation is somehow meaningful for the sense of words, and this also depends on the properties of different languages.
+
+
+6. Why these languages differ in WSD tasks:
+
+First reason is that different language has different syntax/semantic structure, which in turn results in some language phemominal may vary much more than others. For example, the average length of word group changes in different language. English has relatively longer groups (especially noun groups) than Spanish and Catalan, and this may cause the sense of single word depends more and further surrounding words, which makes the WSD task more difficult. 
+
+Second reason maybe the morphology. Some languages like English have lots of morphology and makes WSD more difficult. Spanish has a strong correspondence between the sound of a word and its spelling, but it’s more irregular in English, and similar to word sense, which causes the sense of word more difficult to predict.
+
